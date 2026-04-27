@@ -118,33 +118,40 @@ export function LandingScreen({
             duration: 0.5
           }}
           className="flex flex-col items-center gap-4">
-          
-          <motion.button
-            onClick={onStart}
-            className="px-12 py-6 text-2xl md:text-3xl font-bold text-purple-900 bg-gradient-to-r from-pink-400 via-purple-400 to-yellow-300 rounded-full shadow-2xl shadow-pink-500/50 hover:shadow-pink-500/80 transition-all"
-            whileHover={{
-              scale: 1.1
-            }}
-            whileTap={{
-              scale: 0.95
-            }}
-            animate={{
-              boxShadow: [
-              '0 20px 60px rgba(236, 72, 153, 0.5)',
-              '0 20px 80px rgba(236, 72, 153, 0.8)',
-              '0 20px 60px rgba(236, 72, 153, 0.5)']
 
-            }}
-            transition={{
-              duration: 2,
-              repeat: Infinity
-            }}>
-            
-            <span className="flex items-center gap-3">
-              <Sparkles className="w-8 h-8" />
-              Commencer le Jeu
-              <Sparkles className="w-8 h-8" />
-            </span>
+          <motion.button
+              onClick={onStart}
+              className="px-12 py-6 text-2xl md:text-3xl font-bold text-purple-900 bg-gradient-to-r from-pink-400 via-purple-400 to-yellow-300 rounded-full shadow-2xl shadow-pink-500/50 hover:shadow-pink-500/80"
+              whileHover={{
+                scale: 1.08,
+              }}
+              whileTap={{
+                scale: 0.95,
+              }}
+              animate={{
+                boxShadow: [
+                  '0 20px 60px rgba(236, 72, 153, 0.45)',
+                  '0 20px 80px rgba(236, 72, 153, 0.75)',
+                  '0 20px 60px rgba(236, 72, 153, 0.45)',
+                ],
+              }}
+              transition={{
+                boxShadow: {
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: 'easeInOut',
+                },
+                scale: {
+                  duration: 0.2,
+                  ease: 'easeOut',
+                },
+              }}
+          >
+  <span className="flex items-center gap-3">
+    <Sparkles className="w-8 h-8" />
+    Commencer le Jeu
+    <Sparkles className="w-8 h-8" />
+  </span>
           </motion.button>
 
           <motion.button

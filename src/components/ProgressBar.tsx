@@ -27,52 +27,44 @@ export function ProgressBar({
         }
       </div>
 
-      <div className="relative h-4 bg-purple-900/50 rounded-full overflow-hidden backdrop-blur-sm">
-        <motion.div
-          className="absolute inset-y-0 left-0 bg-gradient-to-r from-pink-500 via-purple-500 to-yellow-400 rounded-full"
-          initial={{
-            width: 0
-          }}
-          animate={{
-            width: `${progress}%`
-          }}
-          transition={{
-            duration: 0.5,
-            ease: 'easeOut'
-          }} />
-        
+        <div className="relative h-10 overflow-visible">
+            <div className="absolute top-1/2 left-0 w-full h-4 -translate-y-1/2 bg-purple-900/50 rounded-full backdrop-blur-sm">
+                <motion.div
+                    className="absolute inset-y-0 left-0 bg-gradient-to-r from-pink-500 via-purple-500 to-yellow-400 rounded-full"
+                    initial={{ width: 0 }}
+                    animate={{ width: `${progress}%` }}
+                    transition={{
+                        duration: 0.5,
+                        ease: 'easeOut',
+                    }}
+                />
+            </div>
 
-        {/* Milestone markers */}
-        {rewards.map((reward) => {
-          const position = reward.threshold / totalQuestions * 100;
-          const isUnlocked = score >= reward.threshold;
-          return (
-            <div
-              key={reward.threshold}
-              className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2"
-              style={{
-                left: `${position}%`
-              }}>
-              
-              <motion.div
-                className={`w-6 h-6 rounded-full border-2 flex items-center justify-center text-xs ${isUnlocked ? 'bg-yellow-400 border-yellow-300 text-purple-900' : 'bg-purple-800 border-purple-600 text-purple-300'}`}
-                animate={
-                isUnlocked ?
-                {
-                  scale: [1, 1.2, 1]
-                } :
-                {}
-                }
-                transition={{
-                  duration: 0.3
-                }}>
-                
-                {reward.emoji}
-              </motion.div>
-            </div>);
+            {rewards.map((reward) => {
+                const position = (reward.threshold / totalQuestions) * 100;
+                const isUnlocked = score >= reward.threshold;
 
-        })}
-      </div>
+                return (
+                    <div
+                        key={reward.threshold}
+                        className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 z-10"
+                        style={{ left: `${position}%` }}
+                    >
+                        <motion.div
+                            className={`w-8 h-8 rounded-full border-2 flex items-center justify-center text-sm shadow-lg ${
+                                isUnlocked
+                                    ? 'bg-yellow-400 border-yellow-300 text-purple-900 shadow-yellow-400/60'
+                                    : 'bg-purple-800 border-purple-600 text-purple-300 shadow-purple-900/60'
+                            }`}
+                            animate={isUnlocked ? { scale: [1, 1.2, 1] } : {}}
+                            transition={{ duration: 0.3 }}
+                        >
+                            {reward.emoji}
+                        </motion.div>
+                    </div>
+                );
+            })}
+        </div>
     </div>);
 
 }

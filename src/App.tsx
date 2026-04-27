@@ -26,9 +26,16 @@ export function App() {
     playCorrect,
     playWrong,
     playMilestone,
+    playMilestoneVoice,
+    playEndVoice,
     playClick,
     playHost,
   } = useGameSounds();
+
+  const goToFinal = () => {
+    playEndVoice();
+    setGameState('final');
+  };
 
   const handleStart = () => {
     playClick();
@@ -48,7 +55,6 @@ export function App() {
   const handleAnswer = (isCorrect: boolean) => {
     if (isCorrect) {
       playCorrect();
-      playHost('correct');
 
       const newScore = score + 1;
       setScore(newScore);
@@ -56,26 +62,32 @@ export function App() {
       const milestone = rewards.find((reward) => reward.threshold === newScore);
 
       if (milestone) {
-        playMilestone();
-        setCurrentMilestone(milestone);
+        const isLastQuestion = currentQuestionIndex >= questions.length - 1;
 
-        if (currentQuestionIndex < questions.length - 1) {
-          setGameState('milestone');
-        } else {
-          setGameState('final');
+        if (isLastQuestion) {
+          goToFinal();
+          return;
         }
+
+        playMilestone();
+
+        setTimeout(() => {
+          playMilestoneVoice();
+        }, 300);
+
+        setCurrentMilestone(milestone);
+        setGameState('milestone');
 
         return;
       }
     } else {
       playWrong();
-      playHost('wrong');
     }
 
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex((prev) => prev + 1);
     } else {
-      setGameState('final');
+      goToFinal();
     }
   };
 
@@ -87,7 +99,7 @@ export function App() {
       setCurrentQuestionIndex((prev) => prev + 1);
       setGameState('quiz');
     } else {
-      setGameState('final');
+      goToFinal();
     }
   };
 

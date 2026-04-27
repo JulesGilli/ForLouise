@@ -14,7 +14,7 @@ export function useGameSounds() {
     if (!bgMusic.current) {
       bgMusic.current = new Audio('/sounds/background.mp3');
       bgMusic.current.loop = true;
-      bgMusic.current.volume = 0.25;
+      bgMusic.current.volume = 0.15;
     }
 
     if (!crowd.current) {
@@ -46,6 +46,14 @@ export function useGameSounds() {
     playSound('/sounds/milestone.mp3', 1);
   }, []);
 
+  const playMilestoneVoice = useCallback(() => {
+    playSound('/sounds/milestoneVoice.mp3', 1);
+  }, []);
+
+  const playEndVoice = useCallback(() => {
+    playSound('/sounds/endVoice.mp3', 1);
+  }, []);
+
   const playClick = useCallback(() => {
     playSound('/sounds/click.mp3', 0.5);
   }, []);
@@ -66,6 +74,8 @@ export function useGameSounds() {
     playCorrect,
     playWrong,
     playMilestone,
+    playMilestoneVoice,
+    playEndVoice,
     playClick,
     playHost,
   };

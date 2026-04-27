@@ -11,7 +11,7 @@ export function MilestoneReveal({ reward, onContinue }: MilestoneRevealProps) {
     <div className="min-h-screen w-full flex items-center justify-center p-4 relative overflow-hidden">
       {/* Animated sparkles */}
       <div className="absolute inset-0">
-        {[...Array(30)].map((_, i) =>
+        {[...Array(12)].map((_, i) =>
         <motion.div
           key={i}
           className="absolute text-yellow-300"
@@ -147,7 +147,7 @@ export function MilestoneReveal({ reward, onContinue }: MilestoneRevealProps) {
           
           <div className="text-4xl">🎙️</div>
           <p className="text-white font-bold text-xl flex-1 text-left">
-            Félicitations Louise ! Tu es incroyable ! Continue comme ça ! 🎉
+            Félicitations Louise ! Tu es beaucoup trop chaude ! Continue comme ça !
           </p>
         </motion.div>
 
