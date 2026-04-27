@@ -179,7 +179,7 @@ export function LandingScreen({
           }}
           className="text-purple-300 text-sm">
           
-          <p>Présenté par ton animateur virtuel préféré 🎙️</p>
+          <p>Présenté par le meilleur des frères pour la meilleure des sœurs</p>
         </motion.div>
       </div>
     </div>);

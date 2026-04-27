@@ -7,52 +7,82 @@ import { FinalScreen } from './components/FinalScreen';
 import { questions } from './data/questions';
 import { rewards } from './data/rewards';
 import { useGameSounds } from './hooks/useGameSounds';
+
 type GameState = 'landing' | 'quiz' | 'milestone' | 'final';
+
 export function App() {
   const [gameState, setGameState] = useState<GameState>('landing');
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [score, setScore] = useState(0);
   const [musicEnabled, setMusicEnabled] = useState(true);
+
   const [currentMilestone, setCurrentMilestone] = useState<
-    (typeof rewards)[0] | null>(
-    null);
-  const { playCorrect, playWrong, playMilestone, playClick } = useGameSounds();
+      (typeof rewards)[0] | null
+  >(null);
+
+  const {
+    startAmbience,
+    stopAmbience,
+    playCorrect,
+    playWrong,
+    playMilestone,
+    playClick,
+    playHost,
+  } = useGameSounds();
+
   const handleStart = () => {
     playClick();
+
+    if (musicEnabled) {
+      startAmbience();
+    }
+
+    playHost('intro');
+
     setGameState('quiz');
     setCurrentQuestionIndex(0);
     setScore(0);
+    setCurrentMilestone(null);
   };
+
   const handleAnswer = (isCorrect: boolean) => {
     if (isCorrect) {
       playCorrect();
+      playHost('correct');
+
       const newScore = score + 1;
       setScore(newScore);
-      // Check if milestone reached
-      const milestone = rewards.find((r) => r.threshold === newScore);
+
+      const milestone = rewards.find((reward) => reward.threshold === newScore);
+
       if (milestone) {
         playMilestone();
         setCurrentMilestone(milestone);
+
         if (currentQuestionIndex < questions.length - 1) {
           setGameState('milestone');
         } else {
           setGameState('final');
         }
+
         return;
       }
     } else {
       playWrong();
+      playHost('wrong');
     }
-    // Move to next question or final screen
+
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex((prev) => prev + 1);
     } else {
       setGameState('final');
     }
   };
+
   const handleContinueFromMilestone = () => {
     playClick();
     setCurrentMilestone(null);
+
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex((prev) => prev + 1);
       setGameState('quiz');
@@ -60,122 +90,97 @@ export function App() {
       setGameState('final');
     }
   };
+
   const handleRestart = () => {
     playClick();
+    stopAmbience();
+
     setGameState('landing');
     setCurrentQuestionIndex(0);
     setScore(0);
     setCurrentMilestone(null);
   };
+
   const handleToggleMusic = () => {
     playClick();
-    setMusicEnabled((prev) => !prev);
+
+    setMusicEnabled((prev) => {
+      const nextValue = !prev;
+
+      if (nextValue) {
+        startAmbience();
+      } else {
+        stopAmbience();
+      }
+
+      return nextValue;
+    });
   };
+
   return (
-    <div className="w-full min-h-screen">
-      <AnimatePresence mode="wait">
-        {gameState === 'landing' &&
-        <motion.div
-          key="landing"
-          initial={{
-            opacity: 0
-          }}
-          animate={{
-            opacity: 1
-          }}
-          exit={{
-            opacity: 0
-          }}
-          transition={{
-            duration: 0.5
-          }}>
-          
-            <LandingScreen
-            onStart={handleStart}
-            musicEnabled={musicEnabled}
-            onToggleMusic={handleToggleMusic} />
-          
-          </motion.div>
-        }
+      <div className="w-full min-h-screen">
+        <AnimatePresence mode="wait">
+          {gameState === 'landing' && (
+              <motion.div
+                  key="landing"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.5 }}
+              >
+                <LandingScreen
+                    onStart={handleStart}
+                    musicEnabled={musicEnabled}
+                    onToggleMusic={handleToggleMusic}
+                />
+              </motion.div>
+          )}
 
-        {gameState === 'quiz' &&
-        <motion.div
-          key="quiz"
-          initial={{
-            opacity: 0,
-            x: 100
-          }}
-          animate={{
-            opacity: 1,
-            x: 0
-          }}
-          exit={{
-            opacity: 0,
-            x: -100
-          }}
-          transition={{
-            duration: 0.5
-          }}>
-          
-            <QuizScreen
-            question={questions[currentQuestionIndex]}
-            questionNumber={currentQuestionIndex + 1}
-            totalQuestions={questions.length}
-            score={score}
-            onAnswer={handleAnswer} />
-          
-          </motion.div>
-        }
+          {gameState === 'quiz' && (
+              <motion.div
+                  key="quiz"
+                  initial={{ opacity: 0, x: 100 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -100 }}
+                  transition={{ duration: 0.5 }}
+              >
+                <QuizScreen
+                    question={questions[currentQuestionIndex]}
+                    questionNumber={currentQuestionIndex + 1}
+                    totalQuestions={questions.length}
+                    score={score}
+                    onAnswer={handleAnswer}
+                />
+              </motion.div>
+          )}
 
-        {gameState === 'milestone' && currentMilestone &&
-        <motion.div
-          key="milestone"
-          initial={{
-            opacity: 0,
-            scale: 0.8
-          }}
-          animate={{
-            opacity: 1,
-            scale: 1
-          }}
-          exit={{
-            opacity: 0,
-            scale: 0.8
-          }}
-          transition={{
-            duration: 0.5
-          }}>
-          
-            <MilestoneReveal
-            reward={currentMilestone}
-            onContinue={handleContinueFromMilestone} />
-          
-          </motion.div>
-        }
+          {gameState === 'milestone' && currentMilestone && (
+              <motion.div
+                  key="milestone"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{ duration: 0.5 }}
+              >
+                <MilestoneReveal
+                    reward={currentMilestone}
+                    onContinue={handleContinueFromMilestone}
+                />
+              </motion.div>
+          )}
 
-        {gameState === 'final' &&
-        <motion.div
-          key="final"
-          initial={{
-            opacity: 0,
-            scale: 0.8
-          }}
-          animate={{
-            opacity: 1,
-            scale: 1
-          }}
-          exit={{
-            opacity: 0,
-            scale: 0.8
-          }}
-          transition={{
-            duration: 0.5
-          }}>
-          
-            <FinalScreen score={score} onRestart={handleRestart} />
-          </motion.div>
-        }
-      </AnimatePresence>
-    </div>);
-
+          {gameState === 'final' && (
+              <motion.div
+                  key="final"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{ duration: 0.5 }}
+              >
+                <FinalScreen score={score} onRestart={handleRestart} />
+              </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+  );
 }

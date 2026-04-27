@@ -4,6 +4,7 @@ import { Question } from '../data/questions';
 import { HostMessage } from './HostMessage';
 import { ProgressBar } from './ProgressBar';
 import { Trophy } from 'lucide-react';
+
 interface QuizScreenProps {
   question: Question;
   questionNumber: number;
@@ -11,70 +12,131 @@ interface QuizScreenProps {
   score: number;
   onAnswer: (isCorrect: boolean) => void;
 }
+
 const correctMessages = [
-'Bien joué Louise ! 🎉',
-'Excellent ! Tu es au top ! 🌟',
-'Parfait ! Continue comme ça ! 💪',
-"Bravo ! C'est la bonne réponse ! 🎊",
-'Génial ! Tu assures ! 🔥'];
+  'Bien joué Loulou ! 🎉',
+  'Point faible… t’es trop forte',
+  'T’es la boss',
+  "Dinguerie que tu saches ça !",
+  "Arrête, tu savais ça toi ?",
+];
 
 const wrongMessages = [
-'Oups, pas cette fois ! 😏',
-'Presque ! La prochaine sera la bonne ! 💫',
-'Dommage ! Mais tu peux te rattraper ! 🎯',
-"Raté ! Mais ne t'inquiète pas ! 💪",
-"Ce n'est pas grave, continue ! 🌈"];
+  'AH AH ! T’as raté !',
+  "Vas-y, t’abuses là",
+  'Tu perds des cadeaux là, tu sais ?',
+  "Y a un lot de consolation si t’es trop nulle",
+  "Des problèmes de mémoire peut-être ?",
+];
 
 const neutralMessages = [
-'Alors Louise, quelle est ta réponse ? 🤔',
-'Réfléchis bien... Tu peux le faire ! 💭',
-'Prends ton temps pour répondre ! ⏰',
-'Quelle sera ta réponse ? 🎯',
-'À toi de jouer maintenant ! 🎲'];
+  'Allez la boss, tu peux le faire',
+  'Facile celle-là, non ?',
+  "Même moi j’ai la bonne réponse",
+  'Attention… celle-là peut faire mal',
+  'Petit piège peut-être… ou pas mdr',
+];
+
+function shuffleQuestion(question: Question): Question {
+  const shuffled = question.options
+      .map((option, index) => ({
+        option,
+        originalIndex: index,
+      }))
+      .sort(() => Math.random() - 0.5);
+
+  return {
+    ...question,
+    options: shuffled.map((item) => item.option) as [
+      string,
+      string,
+      string,
+      string,
+    ],
+    correctIndex: shuffled.findIndex(
+        (item) => item.originalIndex === question.correctIndex,
+    ),
+  };
+}
 
 export function QuizScreen({
-  question,
-  questionNumber,
-  totalQuestions,
-  score,
-  onAnswer
-}: QuizScreenProps) {
+                             question,
+                             questionNumber,
+                             totalQuestions,
+                             score,
+                             onAnswer,
+                           }: QuizScreenProps) {
+  const [shuffledQuestion, setShuffledQuestion] = useState<Question>(() =>
+      shuffleQuestion(question),
+  );
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
+  const [trollOffset, setTrollOffset] = useState({ x: 0, y: 0 });
+
   const [hostMessage, setHostMessage] = useState(
-    neutralMessages[Math.floor(Math.random() * neutralMessages.length)]
+      neutralMessages[Math.floor(Math.random() * neutralMessages.length)],
   );
+
   const [hostMessageType, setHostMessageType] = useState<
-    'neutral' | 'correct' | 'wrong'>(
-    'neutral');
+      'neutral' | 'correct' | 'wrong'
+  >('neutral');
+
   useEffect(() => {
+    setShuffledQuestion(shuffleQuestion(question));
     setSelectedAnswer(null);
     setShowFeedback(false);
+    setTrollOffset({ x: 0, y: 0 });
+
     setHostMessage(
-      neutralMessages[Math.floor(Math.random() * neutralMessages.length)]
+        neutralMessages[Math.floor(Math.random() * neutralMessages.length)],
     );
     setHostMessageType('neutral');
-  }, [question.id]);
+  }, [question.id, question]);
+
+  const isAnswerCorrect = (index: number) => {
+    const selectedOption = shuffledQuestion.options[index];
+
+    if (shuffledQuestion.id === 20) {
+      return selectedOption.toLowerCase().includes('jules');
+    }
+
+    return index === shuffledQuestion.correctIndex;
+  };
+
   const handleAnswer = (index: number) => {
     if (showFeedback) return;
+
+    const isCorrect = isAnswerCorrect(index);
+
     setSelectedAnswer(index);
     setShowFeedback(true);
-    const isCorrect = index === question.correctIndex;
+
     if (isCorrect) {
       setHostMessage(
-        correctMessages[Math.floor(Math.random() * correctMessages.length)]
+          correctMessages[Math.floor(Math.random() * correctMessages.length)],
       );
       setHostMessageType('correct');
     } else {
       setHostMessage(
-        `${wrongMessages[Math.floor(Math.random() * wrongMessages.length)]} La bonne réponse était : ${question.options[question.correctIndex]}`
+          `${wrongMessages[Math.floor(Math.random() * wrongMessages.length)]} La bonne réponse était : ${
+              shuffledQuestion.id === 20
+                  ? 'Jules, évidemment'
+                  : shuffledQuestion.options[shuffledQuestion.correctIndex]
+          }`,
       );
       setHostMessageType('wrong');
     }
-    setTimeout(() => {
-      onAnswer(isCorrect);
-    }, 1200);
+
+      const readingTime = Math.max(
+          2000,
+          hostMessage.length * 40
+      );
+
+      setTimeout(() => {
+          onAnswer(isCorrect);
+      }, readingTime);
   };
+
   return (
       <div className="min-h-screen w-full flex items-center justify-center p-4">
         <div className="max-w-4xl w-full space-y-6">
@@ -110,7 +172,7 @@ export function QuizScreen({
 
           <AnimatePresence mode="wait">
             <motion.div
-                key={question.id}
+                key={shuffledQuestion.id}
                 initial={{ opacity: 0, y: 50 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -50 }}
@@ -118,43 +180,104 @@ export function QuizScreen({
                 className="bg-purple-800/50 backdrop-blur-sm border-2 border-purple-400 rounded-3xl p-8 shadow-2xl"
             >
               <h2 className="text-3xl md:text-4xl text-white font-bold text-center mb-8">
-                {question.question}
+                {shuffledQuestion.question}
               </h2>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {question.options.map((option, index) => {
+              <div
+                  className="grid grid-cols-1 md:grid-cols-2 gap-4"
+                  onMouseMove={(event) => {
+                    const trollButton = document.querySelector<HTMLButtonElement>(
+                        '[data-troll-button="true"]',
+                    );
+
+                    if (!trollButton || showFeedback) return;
+
+                    const rect = trollButton.getBoundingClientRect();
+
+                    const buttonCenterX = rect.left + rect.width / 2;
+                    const buttonCenterY = rect.top + rect.height / 2;
+
+                    const mouseX = event.clientX;
+                    const mouseY = event.clientY;
+
+                    const dx = buttonCenterX - mouseX;
+                    const dy = buttonCenterY - mouseY;
+
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    const triggerDistance = 220;
+
+                    if (distance > triggerDistance) return;
+
+                    const force = (triggerDistance - distance) / triggerDistance;
+                    const strength = 260;
+
+                    const directionX = dx / distance || 1;
+                    const directionY = dy / distance || 1;
+
+                    setTrollOffset((prev) => ({
+                      x: prev.x + directionX * force * strength,
+                      y: prev.y + directionY * force * strength,
+                    }));
+                  }}
+              >
+                {shuffledQuestion.options.map((option, index) => {
                   const isSelected = selectedAnswer === index;
-                  const isCorrect = question.correctIndex === index;
-                  const showCorrect = showFeedback && isCorrect;
-                  const showWrong = showFeedback && isSelected && !isCorrect;
+                  const isCorrectAnswer = isAnswerCorrect(index);
+                  const showCorrect = showFeedback && isCorrectAnswer;
+                  const showWrong =
+                      showFeedback && isSelected && !isCorrectAnswer;
+
+                  const isTrollButton =
+                      shuffledQuestion.id === 20 &&
+                      !option.toLowerCase().includes('jules');
 
                   return (
                       <motion.button
-                          key={`${question.id}-${index}`}
-                          onClick={() => handleAnswer(index)}
+                          data-troll-button={isTrollButton ? 'true' : undefined}
+                          key={`${shuffledQuestion.id}-${option}-${index}`}
+                          onClick={() => {
+                            if (isTrollButton) return;
+                            handleAnswer(index);
+                          }}
                           disabled={showFeedback}
                           className={`p-6 rounded-2xl font-bold text-lg ${
                               showCorrect
                                   ? 'bg-green-500 text-white border-4 border-green-300 shadow-lg shadow-green-500/50'
                                   : showWrong
                                       ? 'bg-red-500 text-white border-4 border-red-300 shadow-lg shadow-red-500/50'
-                                      : 'bg-gradient-to-br from-pink-500 to-purple-600 text-white border-2 border-pink-300 hover:shadow-xl hover:shadow-pink-500/50'
+                                      : isTrollButton
+                                          ? 'bg-gradient-to-br from-gray-600 to-gray-900 text-white border-2 border-gray-300 hover:shadow-xl'
+                                          : 'bg-gradient-to-br from-pink-500 to-purple-600 text-white border-2 border-pink-300 hover:shadow-xl hover:shadow-pink-500/50'
                           } ${showFeedback ? 'cursor-not-allowed' : 'cursor-pointer'}`}
                           initial={{ opacity: 0, y: 20 }}
                           animate={{
                             opacity: 1,
                             y: 0,
-                            x: showWrong ? [-10, 10, -10, 10, 0] : 0,
+                            x: isTrollButton
+                                ? trollOffset.x
+                                : showWrong
+                                    ? [-10, 10, -10, 10, 0]
+                                    : 0,
                             scale: showCorrect ? [1, 1.08, 1] : 1,
                           }}
                           transition={{
                             opacity: { duration: 0.3, delay: index * 0.08 },
                             y: { duration: 0.3, delay: index * 0.08 },
-                            x: { duration: 0.25 },
+                            x: isTrollButton
+                                ? { type: 'spring', stiffness: 90, damping: 12 }
+                                : { duration: 0.25 },
                             scale: { duration: 0.25 },
                           }}
-                          whileHover={!showFeedback ? { scale: 1.05 } : undefined}
-                          whileTap={!showFeedback ? { scale: 0.95 } : undefined}
+                          whileHover={
+                            !showFeedback && !isTrollButton
+                                ? { scale: 1.05 }
+                                : undefined
+                          }
+                          whileTap={
+                            !showFeedback && !isTrollButton
+                                ? { scale: 0.95 }
+                                : undefined
+                          }
                       >
                         {option}
                       </motion.button>
@@ -166,5 +289,4 @@ export function QuizScreen({
         </div>
       </div>
   );
-
 }
