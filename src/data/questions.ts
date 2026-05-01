@@ -9,13 +9,13 @@ export const questions: Question[] = [
   {
     id: 1,
     question: "Quelle est la date d'anniversaire de Jules ?",
-    options: ['17 février 2001', '12 mars 2000', '5 janvier 2002', '21 avril 2001'],
+    options: ['17 février 2001', '17 février 2000', '3 février 2001', '3 février 2000'],
     correctIndex: 0,
   },
   {
     id: 2,
     question: "Quel est le premier parc d'attractions que tu as fait ?",
-    options: ['Disneyland', 'Parc Astérix', 'Europa Park', 'Futuroscope'],
+    options: ['Disneyland', 'PortAventura', 'Walibi', 'Futuroscope'],
     correctIndex: 0,
   },
   {
@@ -45,7 +45,7 @@ export const questions: Question[] = [
   {
     id: 7,
     question: "Pourquoi on t'appelle Shrek ?",
-    options: ['Tu pètes beaucoup', 'Tu as la peau verte', 'Tu rotes', 'Tu schlègues'],
+    options: ['Tu pètes beaucoup', 'Tu as la peau verte', 'Tu rotes', 'Tu pue la mort'],
     correctIndex: 0,
   },
   {
@@ -58,7 +58,7 @@ export const questions: Question[] = [
     id: 9,
     question: 'Qui accompagne toujours Malzahar en bot ?',
     options: ['Miss Fortune', 'Lux', 'Jinx', 'Ashe'],
-    correctIndex: 0,
+    correctIndex: 3,
   },
   {
     id: 10,

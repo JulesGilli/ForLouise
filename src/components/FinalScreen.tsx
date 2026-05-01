@@ -1,44 +1,66 @@
-import React, { useEffect } from 'react';
-import { motion } from 'framer-motion';
+import React, { useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import { rewards } from '../data/rewards';
-import { Trophy, Lock, CheckCircle, RotateCcw } from 'lucide-react';
+import { Trophy, Lock, CheckCircle, RotateCcw, Gift, Star } from 'lucide-react';
+
 interface FinalScreenProps {
   score: number;
   onRestart: () => void;
 }
+
 export function FinalScreen({ score, onRestart }: FinalScreenProps) {
+  const [displayedScore, setDisplayedScore] = useState(score);
+  const [isBonusActive, setIsBonusActive] = useState(false);
+  const [showPopup, setShowPopup] = useState(false);
+
   useEffect(() => {
     // Confetti celebration
-    const duration = 5000;
-    const end = Date.now() + duration;
-    const frame = () => {
-      confetti({
-        particleCount: 3,
-        angle: 60,
-        spread: 55,
-        origin: {
-          x: 0
-        },
-        colors: ['#ec4899', '#a855f7', '#fbbf24']
-      });
-      confetti({
-        particleCount: 3,
-        angle: 120,
-        spread: 55,
-        origin: {
-          x: 1
-        },
-        colors: ['#ec4899', '#a855f7', '#fbbf24']
-      });
-      if (Date.now() < end) {
-        requestAnimationFrame(frame);
-      }
-    };
-    frame();
-  }, []);
-  const unlockedRewards = rewards.filter((r) => score >= r.threshold);
-  const percentage = score / 20 * 100;
+    if (displayedScore === 20) {
+      const duration = 5000;
+      const end = Date.now() + duration;
+      const frame = () => {
+        confetti({
+          particleCount: 3,
+          angle: 60,
+          spread: 55,
+          origin: {
+            x: 0
+          },
+          colors: ['#ec4899', '#a855f7', '#fbbf24']
+        });
+        confetti({
+          particleCount: 3,
+          angle: 120,
+          spread: 55,
+          origin: {
+            x: 1
+          },
+          colors: ['#ec4899', '#a855f7', '#fbbf24']
+        });
+        if (Date.now() < end) {
+          requestAnimationFrame(frame);
+        }
+      };
+      frame();
+    }
+  }, [displayedScore === 20]);
+
+  const handleBonusPoints = () => {
+    setShowPopup(true);
+    setTimeout(() => {
+      setIsBonusActive(true);
+      const interval = setInterval(() => {
+        setDisplayedScore(prev => {
+          if (prev < 20) return prev + 1;
+          clearInterval(interval);
+          return 20;
+        });
+      }, 200);
+    }, 2000);
+  };
+
+  const percentage = Math.round(displayedScore / 20 * 100);
   const getMessage = () => {
     if (score === 20) return 'PARFAIT ! Tu es une championne absolue ! 👑';
     if (score >= 16) return 'Extraordinaire ! Quel talent ! 🌟';
@@ -105,15 +127,15 @@ export function FinalScreen({ score, onRestart }: FinalScreenProps) {
           </p>
           <motion.div
             className="text-8xl md:text-9xl font-bold text-yellow-300"
-            animate={{
+            animate={displayedScore === 20 ? {
               scale: [1, 1.1, 1]
-            }}
+            } : {}}
             transition={{
               duration: 2,
               repeat: Infinity
             }}>
             
-            {score}/20
+            {displayedScore}/20
           </motion.div>
           <p className="text-3xl text-white font-bold mt-4">{percentage}%</p>
         </motion.div>
@@ -164,7 +186,7 @@ export function FinalScreen({ score, onRestart }: FinalScreenProps) {
 
           <div className="grid gap-4">
             {rewards.map((reward, index) => {
-              const isUnlocked = score >= reward.threshold;
+              const isUnlocked = displayedScore >= reward.threshold;
               return (
                 <motion.div
                   key={reward.threshold}
@@ -179,7 +201,8 @@ export function FinalScreen({ score, onRestart }: FinalScreenProps) {
                   transition={{
                     delay: 1 + index * 0.1
                   }}
-                  className={`p-6 rounded-2xl border-2 flex items-center gap-4 ${isUnlocked ? 'bg-gradient-to-r from-green-600 to-emerald-600 border-green-400 shadow-lg shadow-green-500/50' : 'bg-purple-900/50 border-purple-600 opacity-60'}`}>
+                  layout
+                  className={`p-6 rounded-2xl border-2 flex items-center gap-4 transition-colors duration-500 ${isUnlocked ? 'bg-gradient-to-r from-green-600 to-emerald-600 border-green-400 shadow-lg shadow-green-500/50' : 'bg-purple-900/50 border-purple-600 opacity-60'}`}>
                   
                   <div className="text-5xl">{reward.emoji}</div>
 
@@ -192,7 +215,13 @@ export function FinalScreen({ score, onRestart }: FinalScreenProps) {
 
                   <div className="text-3xl">
                     {isUnlocked ?
-                    <CheckCircle className="w-10 h-10 text-green-300" /> :
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ type: 'spring' }}
+                    >
+                      <CheckCircle className="w-10 h-10 text-green-300" />
+                    </motion.div> :
 
                     <Lock className="w-10 h-10 text-purple-400" />
                     }
@@ -203,7 +232,7 @@ export function FinalScreen({ score, onRestart }: FinalScreenProps) {
           </div>
         </motion.div>
 
-        {/* Restart button */}
+        {/* Action button */}
         <motion.div
           initial={{
             opacity: 0,
@@ -218,15 +247,97 @@ export function FinalScreen({ score, onRestart }: FinalScreenProps) {
           }}
           className="text-center">
           
-          <button
-            onClick={onRestart}
-            className="px-12 py-6 text-2xl font-bold text-purple-900 bg-gradient-to-r from-pink-400 to-yellow-400 rounded-full shadow-2xl shadow-pink-500/50 hover:shadow-pink-500/80 transition-all inline-flex items-center gap-3">
-            
-            <RotateCcw className="w-8 h-8" />
-            Rejouer
-          </button>
+          {displayedScore < 20 && !showPopup ? (
+            <button
+              onClick={handleBonusPoints}
+              className="px-12 py-6 text-2xl font-bold text-purple-900 bg-gradient-to-r from-yellow-300 to-yellow-500 rounded-full shadow-2xl shadow-yellow-500/50 hover:shadow-yellow-500/80 transition-all inline-flex items-center gap-3 transform hover:scale-105 active:scale-95">
+              <Gift className="w-8 h-8" />
+              Récupérer les cadeaux
+            </button>
+          ) : (
+            displayedScore === 20 && (
+              <motion.button
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                onClick={onRestart}
+                className="px-12 py-6 text-2xl font-bold text-purple-900 bg-gradient-to-r from-pink-400 to-yellow-400 rounded-full shadow-2xl shadow-pink-500/50 hover:shadow-pink-500/80 transition-all inline-flex items-center gap-3">
+                <RotateCcw className="w-8 h-8" />
+                Rejouer
+              </motion.button>
+            )
+          )}
         </motion.div>
       </div>
+
+      {/* Bonus Popup */}
+      <AnimatePresence>
+        {showPopup && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
+            <motion.div
+              initial={{ scale: 0, rotate: -10 }}
+              animate={{ scale: 1, rotate: 0 }}
+              exit={{ scale: 0, rotate: 10 }}
+              className="bg-gradient-to-br from-purple-600 via-pink-500 to-purple-600 p-1 rounded-3xl max-w-md w-full shadow-2xl">
+              <div className="bg-purple-900 rounded-[22px] p-8 text-center space-y-6">
+                <motion.div
+                  animate={{ 
+                    y: [0, -20, 0],
+                    rotate: [0, 10, -10, 0]
+                  }}
+                  transition={{ 
+                    duration: 2,
+                    repeat: Infinity
+                  }}
+                  className="inline-block"
+                >
+                  <Star className="w-20 h-20 text-yellow-300 fill-yellow-300" />
+                </motion.div>
+                
+                <h3 className="text-3xl font-bold text-white leading-tight">
+                  Point Bonus Spécial ! 🌟
+                </h3>
+                
+                <p className="text-xl text-purple-100 italic">
+                  "Parce que tu es la meilleure des sœurs et que c'est ton anniversaire..."
+                </p>
+
+                <div className="py-4">
+                  {!isBonusActive ? (
+                    <div className="flex justify-center gap-2">
+                      <div className="w-3 h-3 bg-yellow-300 rounded-full animate-bounce" />
+                      <div className="w-3 h-3 bg-yellow-300 rounded-full animate-bounce [animation-delay:-0.15s]" />
+                      <div className="w-3 h-3 bg-yellow-300 rounded-full animate-bounce [animation-delay:-0.3s]" />
+                    </div>
+                  ) : (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="text-2xl font-bold text-yellow-300"
+                    >
+                      Ajout des points en cours...
+                    </motion.div>
+                  )}
+                </div>
+
+                {displayedScore === 20 && (
+                  <motion.button
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    onClick={() => setShowPopup(false)}
+                    className="w-full py-4 bg-yellow-400 text-purple-900 font-bold rounded-xl text-xl hover:bg-yellow-300 transition-colors"
+                  >
+                    Génial ! ✨
+                  </motion.button>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>);
 
 }
