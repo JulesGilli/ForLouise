@@ -147,7 +147,7 @@ export function QuizScreen({
             <div className="max-w-4xl w-full space-y-4 -mt-64">
                 <div className="flex justify-center -mb-20">
                     <img
-                        src="/images/the-louise-quizz-logo.png"
+                        src={`${import.meta.env.BASE_URL}images/the-louise-quizz-logo.png`}
                         alt="The Louise Quizz"
                         className="w-full max-w-3xl drop-shadow-2xl"
                     />

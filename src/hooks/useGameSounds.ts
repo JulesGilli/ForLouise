@@ -1,24 +1,27 @@
 import { useRef, useCallback } from 'react';
 
+const asset = (path: string) =>
+  `${import.meta.env.BASE_URL}${path.replace(/^\//, '')}`;
+
 export function useGameSounds() {
   const bgMusic = useRef<HTMLAudioElement | null>(null);
   const crowd = useRef<HTMLAudioElement | null>(null);
 
   const playSound = (src: string, volume = 1) => {
-    const audio = new Audio(src);
+    const audio = new Audio(asset(src));
     audio.volume = volume;
     audio.play().catch(() => {});
   };
 
   const startAmbience = useCallback(() => {
     if (!bgMusic.current) {
-      bgMusic.current = new Audio('/sounds/background.mp3');
+      bgMusic.current = new Audio(asset('/sounds/background.mp3'));
       bgMusic.current.loop = true;
       bgMusic.current.volume = 0.15;
     }
 
     if (!crowd.current) {
-      crowd.current = new Audio('/sounds/crowd.mp3');
+      crowd.current = new Audio(asset('/sounds/crowd.mp3'));
       crowd.current.loop = true;
       crowd.current.volume = 0.12;
     }
