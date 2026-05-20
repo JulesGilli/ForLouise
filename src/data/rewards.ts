@@ -8,31 +8,37 @@ export interface Reward {
 export const rewards: Reward[] = [
 {
   threshold: 4,
-  title: 'Un petit cadeau mystère',
+  title: 'Un bijou de ventre',
   description: "Une première surprise t'attend ! Continue comme ça !",
-  emoji: '🎁'
+  emoji: '💎'
 },
 {
-  threshold: 8,
-  title: 'Une sortie surprise',
-  description: 'Tu déchires ! Prépare-toi pour une aventure spéciale !',
-  emoji: '🌟'
+  threshold: 7,
+  title: "Des piercings à l'oreille",
+  description: 'Tu déchires ! De jolies brillances pour sublimer ton style !',
+  emoji: '✨'
 },
 {
-  threshold: 12,
-  title: 'Un moment rien que pour toi',
-  description: 'Incroyable ! Un moment de détente bien mérité !',
-  emoji: '💆‍♀️'
+  threshold: 10,
+  title: 'Des piercings au téton',
+  description: 'Incroyable ! Un petit bijou audacieux rien que pour toi !',
+  emoji: '🔥'
 },
 {
-  threshold: 16,
-  title: 'Une aventure inoubliable',
-  description: "Extraordinaire ! Une expérience que tu n'oublieras jamais !",
-  emoji: '🗺️'
+  threshold: 13,
+  title: 'Un sac à main',
+  description: "Extraordinaire ! Un accessoire chic que tu vas adorer !",
+  emoji: '👜'
+},
+{
+  threshold: 17,
+  title: 'Un atelier de pâtisserie en duo avec Maman',
+  description: 'Un moment gourmand à partager rien que toutes les deux avec Maman !',
+  emoji: '🧁'
 },
 {
   threshold: 20,
-  title: 'Le cadeau ultime',
-  description: 'PARFAIT ! Tu as tout réussi ! Le cadeau suprême est à toi !',
-  emoji: '👑'
+  title: 'Deux places de spectacle pour toi et ton amoureux',
+  description: 'PARFAIT ! Un cadeau magique offert par Tatie et Béa pour une soirée inoubliable à deux !',
+  emoji: '🎭'
 }];
